@@ -2,14 +2,15 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 
+/**
+ * A FTP Client is implemented in this class
+ */
 public class FtpClient {
-    public Socket clientSocket = null;
-    ObjectOutputStream outputStream = null;
-    ObjectInputStream inputStream = null;
-    public String userInputCommand;
-    private String currentDirectory;
-    File folder = null;
-    File[] listOfFiles = null;
+    public Socket clientSocket = null;  //socket that listens to server
+    ObjectOutputStream outputStream = null; // stream to write to the socket
+    ObjectInputStream inputStream = null; //stream to read from socket
+    public String userInputCommand; //the FTP command that the user inputs
+    File folder = null; //represents the working directory of the client
     private boolean isConnected = false;
 
     public static void main(String[] args) {
@@ -22,10 +23,9 @@ public class FtpClient {
      */
     void runClient() {
         try {
-            //initialisation
+            //initialization
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-            currentDirectory = new java.io.File(".").getCanonicalPath();
-            folder = new File(currentDirectory);
+            folder = new File("."); //current directory
 
             //processing user input
             while (true) {
@@ -38,7 +38,6 @@ public class FtpClient {
                     //processing command and rerouting to the proper functionality
                     if (splitCommand.length == 2) {
                         switch (splitCommand[0]) {
-
                             //for command "ftpclient <port_number>"
                             case "ftpclient":
                                 if (!isConnected()) {
@@ -46,8 +45,7 @@ public class FtpClient {
                                     try {
                                         connectToServer(portNumber);
                                     } catch (Exception e) {
-                                        System.out.println("ERROR: Unable to connect to server!");
-                                        //todo - log this
+                                        System.err.println("ERROR: Unable to connect to server!");
                                         e.printStackTrace();
                                     }
                                 } else {
@@ -61,13 +59,12 @@ public class FtpClient {
                                     try {
                                         getFile(splitCommand[1]);
                                     } catch (Exception e) {
-                                        System.out.println("Unable to get file from server");
-                                        //todo - log
+                                        System.err.println("Unable to get file from server");
                                         e.printStackTrace();
                                     }
                                     break;
                                 } else {
-                                    System.out.println("CAUTION: Server not connected. Try connecting to the server using the command \"ftpclient <port_number>\"");
+                                    System.err.println("CAUTION: Server not connected. Try connecting to the server using the command \"ftpclient <port_number>\"");
                                 }
                                 break;
 
@@ -76,32 +73,29 @@ public class FtpClient {
                                     try {
                                         uploadFile(splitCommand[1]);
                                     } catch (Exception e) {
-                                        System.out.println("Unable to upload file to server");
-                                        //todo - log
+                                        System.err.println("Unable to upload file to server");
                                         e.printStackTrace();
                                     }
                                     break;
                                 } else {
-                                    System.out.println("CAUTION: Server not connected. Try connecting to the server using the command \"ftpclient <port_number>\"");
+                                    System.err.println("CAUTION: Server not connected. Try connecting to the server using the command \"ftpclient <port_number>\"");
                                 }
                                 break;
 
                             default:
-                                System.out.println("Command does not exist, please retry.");
+                                System.err.println("Command does not exist, please retry.");
                                 break;
                         }
                     } else {
                         System.out.println("Invalid number of arguments encountered, please retry.");
                     }
                 } catch (Exception e) {
-                    System.out.println("Command does not exist, please retry");
-                    //todo - log this
+                    System.out.println("Error encountered when reading command, please retry");
                     e.printStackTrace();
                 }
             }
         } catch (Exception e) {
             System.out.println("Unexpected error occurred: client shutting down.");
-            //todo - log this
             e.printStackTrace();
         }
     }
@@ -125,6 +119,7 @@ public class FtpClient {
     private void connectToServer(int portNumber) throws IOException {
         clientSocket = new Socket("127.0.0.1", portNumber);
 
+        //initializing input and output streams
         outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
         outputStream.flush();
         inputStream = new ObjectInputStream(clientSocket.getInputStream());
@@ -177,7 +172,7 @@ public class FtpClient {
 
         String response = (String) inputStream.readObject();
         if (response.equals("Ready")) {
-            listOfFiles = folder.listFiles();
+            File [] listOfFiles = folder.listFiles();
             for (File file : listOfFiles) {
                 if (file.getName().equals(fileName)) {
                     System.out.println("Found file " + file.getName() + "in server; commencing download.");
