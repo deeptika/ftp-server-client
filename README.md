@@ -2,8 +2,7 @@
 Implementation of FTP Client and Server in Java
 
 Purpose:
-CNT-5106 Computer Networks - Project 1
-University of Florida
+CNT-5106 Computer Networks - Project 1 - University of Florida
 
 Description:
 This project contains an implementation of the File Transfer Protocol (FTP) in Java between a client and a server. 
@@ -12,4 +11,6 @@ In this project, the FTP server is hosted at port 5106. The working directories 
 
 Files:
 FtpClient.java: The FTP client class that obtains user commands and interacts with the server to upload/download files.
-FtpServer.java: The FTP server class that performs the 
+FtpServer.java: The FTP server class that handles client requests.
+uploadTestFile.pptx: A test file for the upload functionality.
+downloadTestFile.pptx: A tets file for the download functionality.
