@@ -33,6 +33,9 @@ public class FtpServer {
         private Socket serverSocket;    //socket that listens to client
         ObjectOutputStream outputStream = null; // stream to write to the socket
         ObjectInputStream inputStream = null; //stream to read from socket
+        private static int contentChunkSize = 1000;   //represents the size of the file chunk received by the server
+        //String currentDirectory = "./";
+        String currentDirectory = "./src/main/java/";
 
         public ClientThread(Socket serverSocket) {
             this.serverSocket = serverSocket;
@@ -48,8 +51,7 @@ public class FtpServer {
                 outputStream.flush();
                 inputStream = new ObjectInputStream(serverSocket.getInputStream());
 
-                //initializing server directory properties
-                String currentDirectory = new java.io.File(".").getCanonicalPath();
+                //initializing server working directory
                 File folder = new File(currentDirectory);
 
                 try {
@@ -139,16 +141,31 @@ public class FtpServer {
             }
         }
 
-        public void uploadFile(String fileName) throws IOException, ClassNotFoundException {
+        /**
+         * receive file uploaded by client and store it in working directory
+         * @param fileName
+         * @throws IOException
+         * @throws ClassNotFoundException
+         */
+        public void uploadFile(String fileName) throws IOException, ClassNotFoundException, InterruptedException {
             //signals client that server is ready for file upload
             sendMessage("Ready");
 
-            //receives message from client
+            //receives file found message from client
             msgFromClient = (String) inputStream.readObject();
             if(msgFromClient.equals("found"))   {
+
+//                byte[] content = null;
+//                int offset = 0;
+//                while(inputStream.available() != 0) {
+//                    byte[] contentChunk = (byte[]) inputStream.readObject();
+//                    System.arraycopy(contentChunk, 0, content, offset, contentChunk.length);
+//                    offset += contentChunkSize;
+//                }
+
                 //reads file from server input stream
                 byte[] content = (byte[]) inputStream.readObject();
-                File file = new File("./" + fileName);
+                File file = new File(currentDirectory + "new" + fileName);
                 Files.write(file.toPath(), content);
                 System.out.println("Received file " + file.getName() + " successfully!");
             } else {

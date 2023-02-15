@@ -1,6 +1,9 @@
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A FTP Client is implemented in this class
@@ -11,7 +14,10 @@ public class FtpClient {
     ObjectInputStream inputStream = null; //stream to read from socket
     public String userInputCommand; //the FTP command that the user inputs
     File folder = null; //represents the working directory of the client
-    private boolean isConnected = false;
+    private boolean isConnected = false; //represents if client is connected to server or not
+    private static int fileChunkSize = 1000;   //represents the size at which a file has to be divided and sent to the server
+    //String currentDirectory = "./";
+    String currentDirectory = "./src/main/java/";
 
     public static void main(String[] args) {
         FtpClient ftpClient = new FtpClient();
@@ -25,13 +31,15 @@ public class FtpClient {
         try {
             //initialization
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-            folder = new File("."); //current directory
+            //folder = new File("."); //current directory
+            folder = new File(currentDirectory);
 
             //processing user input
             while (true) {
+                System.out.println("The client is running now!");
                 try {
                     //receiving user input command
-                    System.out.print("Enter your FTP command here:");
+                    System.out.print("Enter your FTP command here: ");
                     userInputCommand = bufferedReader.readLine();
                     String[] splitCommand = userInputCommand.split("\\s+");
 
@@ -57,7 +65,7 @@ public class FtpClient {
                             case "get":
                                 if (isConnected) {
                                     try {
-                                        getFile(splitCommand[1]);
+                                        getFile(userInputCommand, splitCommand[1]);
                                     } catch (Exception e) {
                                         System.err.println("Unable to get file from server");
                                         e.printStackTrace();
@@ -71,7 +79,7 @@ public class FtpClient {
                             case "upload":
                                 if (isConnected) {
                                     try {
-                                        uploadFile(splitCommand[1]);
+                                        uploadFile(userInputCommand, splitCommand[1]);
                                     } catch (Exception e) {
                                         System.err.println("Unable to upload file to server");
                                         e.printStackTrace();
@@ -96,6 +104,7 @@ public class FtpClient {
             }
         } catch (Exception e) {
             System.out.println("Unexpected error occurred: client shutting down.");
+            setConnected(false);
             e.printStackTrace();
         }
     }
@@ -107,6 +116,10 @@ public class FtpClient {
      */
     public boolean isConnected() {
         return isConnected;
+    }
+
+    public void setConnected(boolean connected) {
+        isConnected = connected;
     }
 
     /**
@@ -123,6 +136,7 @@ public class FtpClient {
         outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
         outputStream.flush();
         inputStream = new ObjectInputStream(clientSocket.getInputStream());
+        setConnected(true);
 
         System.out.println("Now connected to server at: " + clientSocket.getInetAddress().getHostName() + ":" + clientSocket.getPort());
     }
@@ -134,6 +148,7 @@ public class FtpClient {
      * @throws IOException
      */
     void sendMessage(String message) throws IOException {
+        System.out.println("Sending message to server: " + message);
         outputStream.writeObject(message);
         outputStream.flush();
     }
@@ -145,16 +160,31 @@ public class FtpClient {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private void getFile(String fileName) throws IOException, ClassNotFoundException {
-        sendMessage(fileName);
+    private void getFile(String command, String fileName) throws IOException, ClassNotFoundException {
+        sendMessage(command);
         if (inputStream.read() == 0) {
             System.out.println("CAUTION: File does not exist in server!");
         } else {
-            File file = new File("./" + fileName);
+            File file = new File(currentDirectory + "new" + fileName);
             byte[] content = (byte[]) inputStream.readObject();
             Files.write(file.toPath(), content);
             System.out.println("File " + fileName + ": get is successful.");
         }
+    }
+
+    /**
+     * utility method to split byte array into 1000 bytes each
+     * @param input
+     */
+    public static List<byte[]> splitByteArray(byte[] input) {
+        List<byte[]> splitArrays = new ArrayList<byte[]>();
+        int start = 0;
+        while (start < input.length) {
+            int end = Math.min(input.length, start + fileChunkSize);
+            splitArrays.add(Arrays.copyOfRange(input, start, end));
+            start += fileChunkSize;
+        }
+        return splitArrays;
     }
 
     /**
@@ -164,25 +194,29 @@ public class FtpClient {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private void uploadFile(String fileName) throws IOException, ClassNotFoundException {
-        sendMessage(fileName);
+    private void uploadFile(String command, String fileName) throws IOException, ClassNotFoundException {
+        sendMessage(command);
 
         //flag to keep track of whether the file is found in the server or not
         boolean flag = false;
 
         String response = (String) inputStream.readObject();
+
         if (response.equals("Ready")) {
+            System.out.println("Prepping for file upload...");
             File [] listOfFiles = folder.listFiles();
             for (File file : listOfFiles) {
                 if (file.getName().equals(fileName)) {
-                    System.out.println("Found file " + file.getName() + "in server; commencing download.");
-                    flag = true;
+                    System.out.println("Found file " + file.getName() + " in working directory, commencing upload.");
                     sendMessage("found");
-
-                    //todo - divide by 100 bytes
+                    flag = true;
                     byte[] content = Files.readAllBytes(file.toPath());
                     outputStream.writeObject(content);
-                    outputStream.flush();
+//                    List<byte[]> splitContent = splitByteArray(content);
+//                    for (byte [] fileChunk: splitContent) {
+//                        outputStream.writeObject(fileChunk);
+//                        outputStream.flush();
+//                    }
                     System.out.println("File " + file.getName() + " uploaded to server successfully!");
                 }
             }
