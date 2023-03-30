@@ -1,9 +1,6 @@
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * A FTP Client is implemented in this class
@@ -15,9 +12,7 @@ public class FtpClient {
     public String userInputCommand; //the FTP command that the user inputs
     File folder = null; //represents the working directory of the client
     private boolean isConnected = false; //represents if client is connected to server or not
-    private static int fileChunkSize = 1000;   //represents the size at which a file has to be divided and sent to the server
     String currentDirectory = "./";
-    //String currentDirectory = "./src/main/java/";
 
     public static void main(String[] args) {
         FtpClient ftpClient = new FtpClient();
@@ -30,14 +25,14 @@ public class FtpClient {
     void runClient() {
         try {
             //initialization
+            System.out.println("The client is running now!");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-            //folder = new File("."); //current directory
             folder = new File(currentDirectory);
 
             //processing user input
             while (true) {
-                System.out.println("The client is running now!");
                 try {
+                    System.out.println("Available client commands:\n1.\tftpclient <server port number>: To connect to the server\n2.\tget <fileName>: To download a file from the server\n3.\tupload <fileName>: To upload a file to the server");
                     //receiving user input command
                     System.out.print("Enter your FTP command here: ");
                     userInputCommand = bufferedReader.readLine();
@@ -177,21 +172,6 @@ public class FtpClient {
     }
 
     /**
-     * utility method to split byte array into 1000 bytes each
-     * @param input
-     */
-    public static List<byte[]> splitByteArray(byte[] input) {
-        List<byte[]> splitArrays = new ArrayList<byte[]>();
-        int start = 0;
-        while (start < input.length) {
-            int end = Math.min(input.length, start + fileChunkSize);
-            splitArrays.add(Arrays.copyOfRange(input, start, end));
-            start += fileChunkSize;
-        }
-        return splitArrays;
-    }
-
-    /**
      * uploads file to server
      *
      * @param fileName
@@ -216,15 +196,10 @@ public class FtpClient {
                     flag = true;
                     byte[] content = Files.readAllBytes(file.toPath());
                     outputStream.writeObject(content);
-//                    List<byte[]> splitContent = splitByteArray(content);
-//                    for (byte [] fileChunk: splitContent) {
-//                        outputStream.writeObject(fileChunk);
-//                        outputStream.flush();
-//                    }
                     System.out.println("File " + file.getName() + " uploaded to server successfully!");
                 }
             }
-            if (flag == false) {
+            if (!flag) {
                 System.out.println("ERROR - File not found in server");
                 sendMessage("notfound");
             }

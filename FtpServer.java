@@ -35,7 +35,6 @@ public class FtpServer {
         ObjectInputStream inputStream = null; //stream to read from socket
         private static int contentChunkSize = 1000;   //represents the size of the file chunk received by the server
         String currentDirectory = "./";
-//        String currentDirectory = "./src/main/java/";
 
         public ClientThread(Socket serverSocket) {
             this.serverSocket = serverSocket;
@@ -154,15 +153,6 @@ public class FtpServer {
             //receives file found message from client
             msgFromClient = (String) inputStream.readObject();
             if(msgFromClient.equals("found"))   {
-
-//                byte[] content = null;
-//                int offset = 0;
-//                while(inputStream.available() != 0) {
-//                    byte[] contentChunk = (byte[]) inputStream.readObject();
-//                    System.arraycopy(contentChunk, 0, content, offset, contentChunk.length);
-//                    offset += contentChunkSize;
-//                }
-
                 //reads file from server input stream
                 byte[] content = (byte[]) inputStream.readObject();
                 File file = new File(currentDirectory + "new" + fileName);

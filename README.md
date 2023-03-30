@@ -26,3 +26,11 @@ Running the project:
 3. Once the client comes up, it will prompt the user for any FTP command. The first command to be executed should be to connect the client with the server. This can be done using the following statement: ftpclient <port_number> (the port number must correspond to the por where the server is hosted, i.e. 5106).
 4. Test upload functionality in the client using the command: upload <file_name>
 5. Test download functionality in the client using the command: get <file_name>
+
+Todo:
+
+1. Display client menu
+2. Test multiple clients with server without any changes
+3. Implement multiple client handling by server
+4. Move test files to a separate module
+5. Client command to end connection
