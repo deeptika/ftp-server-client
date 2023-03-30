@@ -28,9 +28,8 @@ Running the project:
 5. Test download functionality in the client using the command: get <file_name>
 
 Todo:
-
-1. Display client menu
-2. Test multiple clients with server without any changes
-3. Implement multiple client handling by server
-4. Move test files to a separate module
-5. Client command to end connection
+1. Test multiple clients with server without any changes
+2. Implement multiple client handling by server
+3. Move test files to a separate module
+4. Client command to end connection
+5. Clear all warnings
