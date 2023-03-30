@@ -37,7 +37,7 @@ public class FtpServer {
         ObjectInputStream inputStream = null; //stream to read from socket
         int clientNumber;
 
-        String currentDirectory = "./";
+        String currentDirectory = "./testFiles/";
 
         public ClientThread(Socket serverSocket, int clientNumber) {
             this.serverSocket = serverSocket;

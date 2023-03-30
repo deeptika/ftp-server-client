@@ -12,7 +12,7 @@ public class FtpClient {
     public String userInputCommand; //the FTP command that the user inputs
     File folder = null; //represents the working directory of the client
     private boolean isConnected = false; //represents if client is connected to server or not
-    String currentDirectory = "./";
+    String currentDirectory = "./testFiles/";
 
     public static void main(String[] args) {
         FtpClient ftpClient = new FtpClient();
