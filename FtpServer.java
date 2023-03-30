@@ -8,9 +8,10 @@ import java.nio.file.Files;
 public class FtpServer {
 
     //the port at which the server will be listening
-    private static final int serverPort = 5106;
+    private static final int serverPort = 4007;
 
     public static void main(String[] args) throws Exception {
+        int clientNumber = 0;   // variable that counts and assigns IDs to clients
         System.out.println("The server is now up and running!");
         ServerSocket serverSocket = new ServerSocket(serverPort);
 
@@ -18,7 +19,7 @@ public class FtpServer {
         try {
             while (true) {
                 new ClientThread(serverSocket.accept()).start();
-                System.out.println("Client is connected to the server!");
+                System.out.println("Client " + ++clientNumber + " is connected to the server!");
             }
         } finally {
             serverSocket.close();

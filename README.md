@@ -31,4 +31,6 @@ Todo:
 1. Implement multiple client handling by server
 2. Move test files to a separate module
 3. Client command to end connection
-4. Clear all warnings
+4. Clear all 
+5. Test with a big file
+6. Final README
