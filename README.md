@@ -29,7 +29,5 @@ Running the project:
 6. Exit the client program using the command: exit <server_port_number>
 
 Todo:
-1. Move test files to a separate module
-2. Clear all warnings
-3. Test with a big file
-4. Final README
+1. Clear all warnings
+2. Final README
