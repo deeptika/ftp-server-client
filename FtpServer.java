@@ -32,7 +32,7 @@ public class FtpServer {
      */
     private static class ClientThread extends Thread {
         private String msgFromClient;    //message received from the client
-        private Socket serverSocket;    //socket that listens to client
+        private final Socket serverSocket;    //socket that listens to client
         ObjectOutputStream outputStream = null; // stream to write to the socket
         ObjectInputStream inputStream = null; //stream to read from socket
         int clientNumber;
@@ -68,20 +68,12 @@ public class FtpServer {
                         }
                         String[] splitCommand = msgFromClient.split("\\s+");
 
-                        switch (splitCommand[0])   {
+                        switch (splitCommand[0]) {
                             //download file to server
-                            case "get":
-                                getFile(splitCommand[1], folder);
-                                break;
-
+                            case "get" -> getFile(splitCommand[1], folder);
                             //receive file uploaded to server
-                            case "upload":
-                                uploadFile(splitCommand[1]);
-                                break;
-
-                            default:
-                                System.out.println("ERROR - Command not found");
-                                break;
+                            case "upload" -> uploadFile(splitCommand[1]);
+                            default -> System.out.println("ERROR - Command not found");
                         }
                     }
                 } catch (Exception exception) {
@@ -103,8 +95,8 @@ public class FtpServer {
 
         /**
          * sends message to client via socket output stream
-         * @param message
-         * @throws IOException
+         * @param message String message to be sent to client
+         * @throws IOException upon invalid message parsing
          */
         public void sendMessage(String message) throws IOException {
             System.out.println("Sending message to client: " + message);
@@ -114,8 +106,8 @@ public class FtpServer {
 
         /**
          * sends file to the socket output stream
-         * @param file
-         * @throws IOException
+         * @param file the file from server that is sent to client
+         * @throws IOException upon invalid output stream activity
          */
         public void sendFile(File file) throws IOException {
             byte[] content = Files.readAllBytes(file.toPath());
@@ -126,22 +118,23 @@ public class FtpServer {
 
         /**
          * sends file queried by client using the "get <file_name>" command to client
-         *
-         * @param fileName
-         * @param folder
-         * @throws IOException
+         * @param fileName the name of the file requested by client
+         * @param folder the directory where server files are stored
+         * @throws IOException upon invalid output stream activity
          */
         public void getFile(String fileName, File folder) throws IOException {
             boolean fileFoundFlag = false;
             File[] listOfFiles = folder.listFiles();
-            for (File file : listOfFiles) {
-                if (file.getName().equals(fileName)) {
-                    System.out.println("File " + file.getName() + " found!");
-                    fileFoundFlag = true;
-                    sendFile(file);
+            if(listOfFiles != null) {
+                for (File file : listOfFiles) {
+                    if (file.getName().equals(fileName)) {
+                        System.out.println("File " + file.getName() + " found!");
+                        fileFoundFlag = true;
+                        sendFile(file);
+                    }
                 }
             }
-            if (fileFoundFlag == false) {
+            if (!fileFoundFlag) {
                 System.out.println("ERROR - File not found");
                 outputStream.write(0);
                 outputStream.flush();
@@ -150,11 +143,11 @@ public class FtpServer {
 
         /**
          * receive file uploaded by client and store it in working directory
-         * @param fileName
-         * @throws IOException
-         * @throws ClassNotFoundException
+         * @param fileName name under which uploaded file must be saved in server
+         * @throws IOException upon invalid output stream activity
+         * @throws ClassNotFoundException upon unknown object class being read
          */
-        public void uploadFile(String fileName) throws IOException, ClassNotFoundException, InterruptedException {
+        public void uploadFile(String fileName) throws IOException, ClassNotFoundException {
             //signals client that server is ready for file upload
             sendMessage("Ready");
 

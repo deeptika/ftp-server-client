@@ -3,7 +3,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 
 /**
- * A FTP Client is implemented in this class
+ * An FTP Client is implemented in this class
  */
 public class FtpClient {
     public Socket clientSocket = null;  //socket that listens to server
@@ -46,7 +46,7 @@ public class FtpClient {
                     if (splitCommand.length == 2) {
                         switch (splitCommand[0]) {
                             //for command "ftpclient <port_number>"
-                            case "ftpclient":
+                            case "ftpclient" -> {
                                 if (!isConnected()) {
                                     int portNumber = Integer.parseInt(splitCommand[1]);
                                     try {
@@ -58,10 +58,9 @@ public class FtpClient {
                                 } else {
                                     System.out.println("Already connected to server!");
                                 }
-                                break;
-
+                            }
                             //for command "get <file_name>"
-                            case "get":
+                            case "get" -> {
                                 if (isConnected) {
                                     try {
                                         getFile(userInputCommand, splitCommand[1]);
@@ -69,14 +68,12 @@ public class FtpClient {
                                         System.err.println("Unable to get file from server");
                                         e.printStackTrace();
                                     }
-                                    break;
                                 } else {
                                     System.err.println("CAUTION: Server not connected. Try connecting to the server using the command \"ftpclient <port_number>\"");
                                 }
-                                break;
-
+                            }
                             //for command "upload <file_name>"
-                            case "upload":
+                            case "upload" -> {
                                 if (isConnected) {
                                     try {
                                         uploadFile(userInputCommand, splitCommand[1]);
@@ -84,15 +81,11 @@ public class FtpClient {
                                         System.err.println("Unable to upload file to server");
                                         e.printStackTrace();
                                     }
-                                    break;
                                 } else {
                                     System.err.println("CAUTION: Server not connected. Try connecting to the server using the command \"ftpclient <port_number>\"");
                                 }
-                                break;
-
-                            default:
-                                System.err.println("Command does not exist, please retry.");
-                                break;
+                            }
+                            default -> System.err.println("Command does not exist, please retry.");
                         }
                     } else {
                         System.out.println("Invalid number of arguments encountered, please retry.");
@@ -113,8 +106,7 @@ public class FtpClient {
 
     /**
      * checks if the client is connected to the server or not
-     *
-     * @return
+     * @return boolean value
      */
     public boolean isConnected() {
         return isConnected;
@@ -122,7 +114,7 @@ public class FtpClient {
 
     /**
      * sets connected value
-     * @param connected
+     * @param connected variable that signifies whether client is connected to server
      */
     public void setConnected(boolean connected) {
         isConnected = connected;
@@ -131,9 +123,8 @@ public class FtpClient {
     /**
      * connects to the server at localhost:portNumber
      * initializes object streams
-     *
-     * @param portNumber
-     * @throws IOException
+     * @param portNumber variable that contains server port number
+     * @throws IOException upon invalid output/input stream activity
      */
     private void connectToServer(int portNumber) throws IOException {
         clientSocket = new Socket("127.0.0.1", portNumber);
@@ -149,9 +140,8 @@ public class FtpClient {
 
     /**
      * sends message to the output stream
-     *
-     * @param message
-     * @throws IOException
+     * @param message String message to be sent to server
+     * @throws IOException upon invalid output stream activity
      */
     void sendMessage(String message) throws IOException {
         System.out.println("Sending message to server: " + message);
@@ -161,10 +151,9 @@ public class FtpClient {
 
     /**
      * downloads/gets file from server
-     *
-     * @param fileName
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @param fileName name of file in server that is to be downloaded
+     * @throws IOException upon invalid input/output stream activity
+     * @throws ClassNotFoundException upon reading an unknown object
      */
     private void getFile(String command, String fileName) throws IOException, ClassNotFoundException {
         sendMessage(command);
@@ -180,10 +169,9 @@ public class FtpClient {
 
     /**
      * uploads file to server
-     *
-     * @param fileName
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @param fileName name of file that is to be uploaded
+     * @throws IOException upon invalid input/output stream activity
+     * @throws ClassNotFoundException upon reading unknown object
      */
     private void uploadFile(String command, String fileName) throws IOException, ClassNotFoundException {
         sendMessage(command);
@@ -196,14 +184,16 @@ public class FtpClient {
         if (response.equals("Ready")) {
             System.out.println("Prepping for file upload...");
             File [] listOfFiles = folder.listFiles();
-            for (File file : listOfFiles) {
-                if (file.getName().equals(fileName)) {
-                    System.out.println("Found file " + file.getName() + " in working directory, commencing upload.");
-                    sendMessage("found");
-                    flag = true;
-                    byte[] content = Files.readAllBytes(file.toPath());
-                    outputStream.writeObject(content);
-                    System.out.println("File " + file.getName() + " uploaded to server successfully!");
+            if(listOfFiles != null) {
+                for (File file : listOfFiles) {
+                    if (file.getName().equals(fileName)) {
+                        System.out.println("Found file " + file.getName() + " in working directory, commencing upload.");
+                        sendMessage("found");
+                        flag = true;
+                        byte[] content = Files.readAllBytes(file.toPath());
+                        outputStream.writeObject(content);
+                        System.out.println("File " + file.getName() + " uploaded to server successfully!");
+                    }
                 }
             }
             if (!flag) {
