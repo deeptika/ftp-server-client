@@ -34,8 +34,8 @@ public class FtpServer {
         ObjectOutputStream outputStream = null; // stream to write to the socket
         ObjectInputStream inputStream = null; //stream to read from socket
         private static int contentChunkSize = 1000;   //represents the size of the file chunk received by the server
-        //String currentDirectory = "./";
-        String currentDirectory = "./src/main/java/";
+        String currentDirectory = "./";
+//        String currentDirectory = "./src/main/java/";
 
         public ClientThread(Socket serverSocket) {
             this.serverSocket = serverSocket;
