@@ -18,8 +18,9 @@ public class FtpServer {
         //connecting to the client
         try {
             while (true) {
-                new ClientThread(serverSocket.accept()).start();
-                System.out.println("Client " + ++clientNumber + " is connected to the server!");
+                clientNumber++;
+                new ClientThread(serverSocket.accept(), clientNumber).start();
+                System.out.println("Client " + clientNumber + " is connected to the server!");
             }
         } finally {
             serverSocket.close();
@@ -34,11 +35,13 @@ public class FtpServer {
         private Socket serverSocket;    //socket that listens to client
         ObjectOutputStream outputStream = null; // stream to write to the socket
         ObjectInputStream inputStream = null; //stream to read from socket
-        private static int contentChunkSize = 1000;   //represents the size of the file chunk received by the server
+        int clientNumber;
+
         String currentDirectory = "./";
 
-        public ClientThread(Socket serverSocket) {
+        public ClientThread(Socket serverSocket, int clientNumber) {
             this.serverSocket = serverSocket;
+            this.clientNumber = clientNumber;
         }
 
         /**
@@ -59,6 +62,10 @@ public class FtpServer {
                         //receiving the message from client and processing input
                         msgFromClient = (String) inputStream.readObject();
                         System.out.println("Message from client: " + msgFromClient);
+                        if(msgFromClient.equals("exit")) {
+                            System.out.println("Client "+ clientNumber + " has closed connection.");
+                            break;
+                        }
                         String[] splitCommand = msgFromClient.split("\\s+");
 
                         switch (splitCommand[0])   {
@@ -81,7 +88,7 @@ public class FtpServer {
                     System.err.println("ERROR - failed to receive information from client");
                 }
             } catch (Exception exception) {
-                System.out.println("Disconnecting from client...");
+                System.out.println("ERROR - Disconnecting from all clients...");
             } finally {
                 //closing all connections
                 try {
@@ -89,7 +96,7 @@ public class FtpServer {
                     outputStream.close();
                     serverSocket.close();
                 } catch (IOException ioException) {
-                    System.out.println("Disconnected from client!");
+                    System.out.println("ERROR - Couldn't close all connections!");
                 }
             }
         }
