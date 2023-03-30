@@ -16,8 +16,8 @@ public class FtpClient {
     File folder = null; //represents the working directory of the client
     private boolean isConnected = false; //represents if client is connected to server or not
     private static int fileChunkSize = 1000;   //represents the size at which a file has to be divided and sent to the server
-    //String currentDirectory = "./";
-    String currentDirectory = "./src/main/java/";
+    String currentDirectory = "./";
+    //String currentDirectory = "./src/main/java/";
 
     public static void main(String[] args) {
         FtpClient ftpClient = new FtpClient();
@@ -118,6 +118,10 @@ public class FtpClient {
         return isConnected;
     }
 
+    /**
+     * sets connected value
+     * @param connected
+     */
     public void setConnected(boolean connected) {
         isConnected = connected;
     }
