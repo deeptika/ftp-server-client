@@ -29,9 +29,7 @@ Running the project:
 6. Exit the client program using the command: exit <server_port_number>
 
 Todo:
-1. Implement multiple client handling by server
-2. Move test files to a separate module
-3. Client command to end connection
-4. Clear all 
-5. Test with a big file
-6. Final README
+1. Move test files to a separate module
+2. Clear all warnings
+3. Test with a big file
+4. Final README
