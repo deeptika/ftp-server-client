@@ -30,9 +30,10 @@ public class FtpClient {
             folder = new File(currentDirectory);
 
             //processing user input
+            outerloop:
             while (true) {
                 try {
-                    System.out.println("Available client commands:\n1.\tftpclient <server port number>: To connect to the server\n2.\tget <fileName>: To download a file from the server\n3.\tupload <fileName>: To upload a file to the server");
+                    System.out.println("Available client commands:\n1.\tftpclient <server port number>: To connect to the server\n2.\tget <fileName>: To download a file from the server\n3.\tupload <fileName>: To upload a file to the server\n4.\texit <server port number>: Ends the client program");
                     //receiving user input command
                     System.out.print("Enter your FTP command here: ");
                     userInputCommand = bufferedReader.readLine();
@@ -71,6 +72,7 @@ public class FtpClient {
                                 }
                                 break;
 
+                            //for command "upload <file_name>"
                             case "upload":
                                 if (isConnected) {
                                     try {
@@ -84,6 +86,10 @@ public class FtpClient {
                                     System.err.println("CAUTION: Server not connected. Try connecting to the server using the command \"ftpclient <port_number>\"");
                                 }
                                 break;
+
+                            //for command "exit <port_number>"
+                            case "exit":
+                                break outerloop;
 
                             default:
                                 System.err.println("Command does not exist, please retry.");
@@ -101,6 +107,8 @@ public class FtpClient {
             System.out.println("Unexpected error occurred: client shutting down.");
             setConnected(false);
             e.printStackTrace();
+        } finally {
+            System.out.println("Client shutting down...");
         }
     }
 
