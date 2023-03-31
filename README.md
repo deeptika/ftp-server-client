@@ -1,4 +1,4 @@
-# cn-project-1
+# FTP Server-Client
 Implementation of FTP Client and Server in Java
 
 Purpose:
